@@ -278,7 +278,7 @@ namespace gdpi {
 		int bestSuccessRate = 0;
 
 		for (const auto& args1 : TEST_ARGUMENTS) {
-			auto args = "-e 1 " + args1 + " --dns-addr 1.1.1.1 --dns-port 53 --dnsv6-addr 2606:4700:4700::1111 --dnsv6-port 53";
+			auto args = "-e 1 -q " + args1 + " --dns-addr 1.1.1.1 --dns-port 53 --dnsv6-addr 2606:4700:4700::1111 --dnsv6-port 53";
 			std::cout << "\nDenenen yontem: " << args << std::endl;
 
 			if (!startGoodbyeDPI(exePath, args)) {
