@@ -6,6 +6,8 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <mutex>
+#include <future>
 
 namespace gdpi {
     class Tester {
@@ -23,8 +25,12 @@ namespace gdpi {
         static constexpr double TEST_DELAY = 0.02;
 
         static HANDLE processHandle;
+        static std::mutex resultsMutex;
+        static HINTERNET hSession;
         static const std::vector<std::string> TEST_ARGUMENTS;
         static const std::vector<std::string> TEST_URLS;
+        static void init();
+        static void cleanup();
 
         static void setTextColor(int color);
         static void delay(double seconds, bool print = false);

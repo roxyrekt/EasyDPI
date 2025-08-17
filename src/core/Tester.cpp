@@ -77,17 +77,33 @@ namespace gdpi {
 	};
 
 	const std::vector<std::string> Tester::TEST_URLS = {
-	"https://www.pastebin.com",
-	"https://www.roblox.com",
-	"https://www.discord.com",
-	"https://www.discord.gg",
-	"https://www.discordapp.com",
-	"https://www.reddit.com",
-	"https://www.youtube.com",
-	"https://www.instagram.com",
+		"https://www.youtube.com",
+		"https://www.instagram.com",
+		"https://www.pastebin.com",
+		"https://www.roblox.com",
+		"https://www.discord.com"
 	};
 
 	HANDLE Tester::processHandle = NULL;
+	HINTERNET Tester::hSession = NULL;
+	std::mutex Tester::resultsMutex;
+
+	void Tester::init() {
+		hSession = WinHttpOpen(L"GBDPI-Tester/1.0",
+			WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+			WINHTTP_NO_PROXY_NAME,
+			WINHTTP_NO_PROXY_BYPASS, 0);
+		if (hSession) {
+			WinHttpSetTimeouts(hSession, 500, 500, 500, 500);
+		}
+	}
+
+	void Tester::cleanup() {
+		if (hSession) {
+			WinHttpCloseHandle(hSession);
+			hSession = NULL;
+		}
+	}
 
 	void Tester::setTextColor(int color) {
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
@@ -101,11 +117,6 @@ namespace gdpi {
 	}
 
 	bool Tester::testConnection(const std::string& url) {
-		HINTERNET hSession = WinHttpOpen(L"GBDPI-Tester/1.0",
-			WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-			WINHTTP_NO_PROXY_NAME,
-			WINHTTP_NO_PROXY_BYPASS, 0);
-
 		if (!hSession) return false;
 
 		bool result = false;
@@ -143,7 +154,6 @@ namespace gdpi {
 			}
 		}
 
-		WinHttpCloseHandle(hSession);
 		return result;
 	}
 
@@ -214,13 +224,18 @@ namespace gdpi {
 			return false;
 		}
 
-		delay(STARTUP_DELAY, true);
+		delay(STARTUP_DELAY);
 		std::vector<TestResult> results;
 
+		std::vector<std::future<TestResult>> futures;
 		for (const auto& url : TEST_URLS) {
-			bool success = testConnection(url);
-			results.emplace_back(url, success);
-			delay(TEST_DELAY, true);
+			futures.emplace_back(std::async(std::launch::async, [url]() {
+				return TestResult(url, testConnection(url));
+				}));
+		}
+
+		for (auto& future : futures) {
+			results.emplace_back(future.get());
 		}
 
 		printResults(results, args);
@@ -230,14 +245,20 @@ namespace gdpi {
 	}
 
 	std::string Tester::findBestArguments(const std::string& exePath) {
+		init();
 		std::cout << "GoodByeDPI yontemleri deneniyor...\n";
 		std::cout << "\nGoodByeDPI olmadan deneniyor...\n";
-		delay(TEST_DELAY, true);
+		delay(TEST_DELAY);
 
 		std::vector<TestResult> initialResults;
+		std::vector<std::future<TestResult>> initialFutures;
 		for (const auto& url : TEST_URLS) {
-			initialResults.emplace_back(url, testConnection(url));
-			delay(TEST_DELAY, true);
+			initialFutures.emplace_back(std::async(std::launch::async, [url]() {
+				return TestResult(url, testConnection(url));
+				}));
+		}
+		for (auto& future : initialFutures) {
+			initialResults.emplace_back(future.get());
 		}
 
 		int rate = calculateSuccessRate(initialResults);
@@ -267,10 +288,15 @@ namespace gdpi {
 			delay(STARTUP_DELAY);
 			std::vector<TestResult> results;
 
+			std::vector<std::future<TestResult>> futures;
 			for (const auto& url : TEST_URLS) {
-				bool success = testConnection(url);
-				results.emplace_back(url, success);
-				delay(TEST_DELAY, false);
+				futures.emplace_back(std::async(std::launch::async, [url]() {
+					return TestResult(url, testConnection(url));
+					}));
+			}
+
+			for (auto& future : futures) {
+				results.emplace_back(future.get());
 			}
 
 			printResults(results, args);
@@ -303,6 +329,7 @@ namespace gdpi {
 		setTextColor(C_RED);
 		std::cout << "\nCalisan yontem bulunamadi!\n";
 		setTextColor(C_WHITE);
+		cleanup();
 		return std::string("");
 	}
 }
