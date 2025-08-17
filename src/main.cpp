@@ -202,25 +202,24 @@ int main() {
     setlocale(LC_ALL, "Turkish");
     if (!ensureIsAdmin())
     {
-        printMessage("Yönetici olarak başlatmalısınız!", 12);
+        printMessage("Yonetici olarak baslatmalisiniz!", 12);
         return 1;
     }
 
     while (true) {
         bool isInstalled = gdpi::PathManager::isInstalled();
-        printMessage("DNS değiştirmeyi unutma, yoksa bir işe yaramaz. :)", 14);
         printMessage("\n--- GoodByeDPI ---", 11);
         if (isInstalled) {
             printMessage("GoodbyeDPI kurulu.", 10);
         }
         else {
-            printMessage("GoodByeDPI kurulu değil.", 12);
+            printMessage("GoodByeDPI kurulu degil.", 12);
         }
         printMessage("1. GoodByeDPI indir", 14);
         printMessage("2. GoodByeDPI sil", 14);
-        printMessage("3. En iyi yöntemi ara", 14);
-        printMessage("4. Çıkış", 14);
-        printMessage("Bir seçenek seçin: ", 7);
+        printMessage("3. En iyi yontemi ara", 14);
+        printMessage("4. Cikis", 14);
+        printMessage("Bir secenek secin: ", 7);
 
         int choice;
         std::cin >> choice;
@@ -240,10 +239,10 @@ int main() {
                 testArguments();
             break;
         case 4:
-            printMessage("Çıkılıyor...", 10);
+            printMessage("Cikiliyor...", 10);
             return 0;
         default:
-            printMessage("Geçersiz seçim, lütfen tekrar deneyin.", 12);
+            printMessage("Gecersiz secim, lutfen tekrar deneyin.", 12);
         }
     }
 }

@@ -151,7 +151,7 @@ namespace gdpi {
 		char commandLine[MAX_PATH * 2];
 		if (snprintf(commandLine, sizeof(commandLine), "\"%s\" %s",
 			exePath.c_str(), args.c_str()) >= sizeof(commandLine)) {
-			std::cerr << "Komut satýrý çok uzun!\n";
+			std::cerr << "Komut satiri cok uzun!\n";
 			return false;
 		}
 
@@ -169,7 +169,7 @@ namespace gdpi {
 		}
 
 		DWORD error = GetLastError();
-		std::cerr << "CreateProcess baþarýsýz hata " << error << std::endl;
+		std::cerr << "CreateProcess basarisiz hata " << error << std::endl;
 		return false;
 	}
 
@@ -184,20 +184,20 @@ namespace gdpi {
 
 	void Tester::printResults(const std::vector<TestResult>& results, const std::string& args) {
 		if (!args.empty()) {
-			// std::cout << "\nSonuçlar yöntem için: " << args << std::endl;
+			// std::cout << "\nSonuï¿½lar yï¿½ntem iï¿½in: " << args << std::endl;
 		}
 		std::cout << "----------------------------------------\n";
 
 		for (const auto& result : results) {
 			setTextColor(result.success ? C_GREEN : C_RED);
-			std::cout << (result.success ? "[BAÞARILI] " : "[BAÞARSIZ] ") << result.url << std::endl;
+			std::cout << (result.success ? "[BASARILI] " : "[BASARSIZ] ") << result.url << std::endl;
 		}
 
 		setTextColor(C_WHITE);
 		std::cout << "----------------------------------------\n";
 
 		int successRate = calculateSuccessRate(results);
-		std::cout << "Baþarý oraný: %" << successRate << "\n";
+		std::cout << "Basari orani: %" << successRate << "\n";
 		std::cout << "----------------------------------------\n";
 	}
 
@@ -214,13 +214,13 @@ namespace gdpi {
 			return false;
 		}
 
-		delay(STARTUP_DELAY);
+		delay(STARTUP_DELAY, true);
 		std::vector<TestResult> results;
 
 		for (const auto& url : TEST_URLS) {
 			bool success = testConnection(url);
 			results.emplace_back(url, success);
-			delay(TEST_DELAY, false);
+			delay(TEST_DELAY, true);
 		}
 
 		printResults(results, args);
@@ -230,22 +230,22 @@ namespace gdpi {
 	}
 
 	std::string Tester::findBestArguments(const std::string& exePath) {
-		std::cout << "GoodByeDPI yöntemleri deneniyor...\n";
+		std::cout << "GoodByeDPI yontemleri deneniyor...\n";
 		std::cout << "\nGoodByeDPI olmadan deneniyor...\n";
-		delay(TEST_DELAY);
+		delay(TEST_DELAY, true);
 
 		std::vector<TestResult> initialResults;
 		for (const auto& url : TEST_URLS) {
 			initialResults.emplace_back(url, testConnection(url));
-			delay(TEST_DELAY);
+			delay(TEST_DELAY, true);
 		}
 
 		int rate = calculateSuccessRate(initialResults);
-		printResults(initialResults, "Test Sonuçlarý");
+		printResults(initialResults, "Test Sonuclari");
 
 		if (rate == 100) {
 			setTextColor(C_GREEN);
-			std::cout << "\nZaten baþarý oraný %100.\n";
+			std::cout << "\nZaten basarÄ± orani %100.\n";
 			setTextColor(C_WHITE);
 			return std::string("");
 		}
@@ -257,8 +257,8 @@ namespace gdpi {
 		int bestSuccessRate = 0;
 
 		for (const auto& args1 : TEST_ARGUMENTS) {
-			auto args = "-e 1 -q " + args1;
-			std::cout << "\nDenenen yöntem: " << args << std::endl;
+			auto args = "-e 1 " + args1 + " --dns-addr 1.1.1.1 --dns-port 53 --dnsv6-addr 2606:4700:4700::1111 --dnsv6-port 53";
+			std::cout << "\nDenenen yontem: " << args << std::endl;
 
 			if (!startGoodbyeDPI(exePath, args)) {
 				continue;
@@ -280,7 +280,7 @@ namespace gdpi {
 
 			if (currentSuccessRate == 100) {
 				setTextColor(C_GREEN);
-				std::cout << "\nEn iyi yöntem bulundu (%100 baþarý oraný): " << args << std::endl;
+				std::cout << "\nEn iyi yontem bulundu (%100 basari orani): " << args << std::endl;
 				setTextColor(C_WHITE);
 				return args;
 			}
@@ -295,13 +295,13 @@ namespace gdpi {
 
 		if (!bestArgs.empty()) {
 			setTextColor(C_YELLOW);
-			std::cout << "\nEn iyi yöntem (%" << bestSuccessRate << " baþarý oraný): " << bestArgs << std::endl;
+			std::cout << "\nEn iyi yontem (%" << bestSuccessRate << " basari orani): " << bestArgs << std::endl;
 			setTextColor(C_WHITE);
 			return bestArgs;
 		}
 
 		setTextColor(C_RED);
-		std::cout << "\nÇalýþan yöntem bulunamadý!\n";
+		std::cout << "\nCalisan yontem bulunamadi!\n";
 		setTextColor(C_WHITE);
 		return std::string("");
 	}
