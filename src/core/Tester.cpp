@@ -94,7 +94,7 @@ namespace gdpi {
 			WINHTTP_NO_PROXY_NAME,
 			WINHTTP_NO_PROXY_BYPASS, 0);
 		if (hSession) {
-			WinHttpSetTimeouts(hSession, 500, 500, 500, 500);
+			WinHttpSetTimeouts(hSession, 200, 200, 200, 200);
 		}
 	}
 
