@@ -61,7 +61,7 @@ void printMessage(const std::string& message, int color) {
 void manageGoodByeDPIService(const std::string& arguments) {
     SC_HANDLE scManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!scManager) {
-        std::cerr << "Servis yöneticisi açılamadı. Hata kodu: " << GetLastError() << "\n";
+        std::cerr << "Servis yÃ¶neticisi aÃ§Ä±lamadÄ±. Hata kodu: " << GetLastError() << "\n";
         return;
     }
 
@@ -94,7 +94,7 @@ void manageGoodByeDPIService(const std::string& arguments) {
     );
 
     if (!newService) {
-        std::cerr << "Servis oluşturulamadı. Hata kodu: " << GetLastError() << "\n";
+        std::cerr << "Servis oluÅŸturulamadÄ±. Hata kodu: " << GetLastError() << "\n";
         CloseServiceHandle(scManager);
         return;
     }
@@ -104,10 +104,10 @@ void manageGoodByeDPIService(const std::string& arguments) {
     ChangeServiceConfig2A(newService, SERVICE_CONFIG_DESCRIPTION, &desc);
 
     if (!StartServiceA(newService, 0, NULL)) {
-        std::cerr << "Servis başlatılamadı. Hata kodu: " << GetLastError() << "\n";
+        std::cerr << "Servis baÅŸlatÄ±lamadÄ±. Hata kodu: " << GetLastError() << "\n";
     }
     else {
-        std::cout << "Servis başarıyla başlatıldı.\n";
+        std::cout << "Servis baÅŸarÄ±yla baÅŸlatÄ±ldÄ±.\n";
     }
 
     CloseServiceHandle(newService);
@@ -118,25 +118,25 @@ void uninstallGoodByeDPI() {
     system("taskkill /F /IM goodbyedpi.exe > nul 2>&1");
 
     if (!gdpi::ServiceManager::cleanupServices()) {
-        printMessage("Uyarı: Bazı servisler silinemeyebilir.", 12);
+        printMessage("UyarÄ±: BazÄ± servisler silinemeyebilir.", 12);
     }
     if (gdpi::PathManager::isInstalled()) {
         if (gdpi::FileSystem::removeAll(gdpi::PathManager::getBaseInstallPath())) {
-            printMessage("GoodByeDPI başarıyla silindi.", 10);
+            printMessage("GoodByeDPI baÅŸarÄ±yla silindi.", 10);
         }
         else {
             printMessage("GoodByeDPI silinemedi.", 12);
         }
     }
     else {
-        printMessage("GoodByeDPI kurulu değil.", 14);
+        printMessage("GoodByeDPI kurulu deÄŸil.", 14);
     }
 }
 
 void installGoodByeDPI() {
     try {
         if (gdpi::PathManager::isInstalled()) {
-            printMessage("GoodByeDPI zaten yüklü. Tekrar yüklemek mi istiyorsunuz? (y/n): ", 14);
+            printMessage("GoodByeDPI zaten yÃ¼klÃ¼. Tekrar yÃ¼klemek mi istiyorsunuz? (y/n): ", 14);
             std::string response;
             std::cin >> response;
             std::cin.ignore();
@@ -153,33 +153,33 @@ void installGoodByeDPI() {
         gdpi::PathManager::createDirectories(tempPath);
 
         gdpi::DownloadManager downloader;
-        printMessage("En son GoodByeDPI sürümü indiriliyor...", 10);
+        printMessage("En son GoodByeDPI sÃ¼rÃ¼mÃ¼ indiriliyor...", 10);
         if (!downloader.downloadLatestRelease(zipPath)) {
-            printMessage("İndirme başarısız!", 12);
+            printMessage("Ä°ndirme baÅŸarÄ±sÄ±z!", 12);
             return;
         }
 
-        printMessage("İndirme başarıyla tamamlandı!", 10);
-        printMessage("Dosyalar çıkartılıyor...", 10);
+        printMessage("Ä°ndirme baÅŸarÄ±yla tamamlandÄ±!", 10);
+        printMessage("Dosyalar Ã§Ä±kartÄ±lÄ±yor...", 10);
         if (gdpi::Extractor::extractInnerFolder(zipPath, baseInstallPath)) {
-            printMessage("Dosyalar başarıyla çıkartıldı!", 10);
+            printMessage("Dosyalar baÅŸarÄ±yla Ã§Ä±kartÄ±ldÄ±!", 10);
             gdpi::FileSystem::remove(zipPath);
             gdpi::FileSystem::removeAll(tempPath);
         }
         else {
-            printMessage("Dosyaları çıkartma başarısız!", 12);
+            printMessage("DosyalarÄ± Ã§Ä±kartma baÅŸarÄ±sÄ±z!", 12);
             return;
         }
 
         if (gdpi::PathManager::isInstalled()) {
-            printMessage("İndirme başarıyla doğrulandı!", 10);
+            printMessage("Ä°ndirme baÅŸarÄ±yla doÄŸrulandÄ±!", 10);
         }
         else {
-            printMessage("İndirme doğrulanamadı!", 12);
+            printMessage("Ä°ndirme doÄŸrulanamadÄ±!", 12);
         }
     }
     catch (const std::exception& e) {
-        printMessage(std::string("İndirirken hata: ") + e.what(), 12);
+        printMessage(std::string("Ä°ndirirken hata: ") + e.what(), 12);
     }
 }
 
@@ -187,15 +187,14 @@ void testArguments() {
     std::string exePath = gdpi::PathManager::getArchInstallPath() + "\\goodbyedpi.exe";
     std::string bestArgs = gdpi::Tester::findBestArguments(exePath);
     if (!bestArgs.empty()) {
-        // printMessage("En iyi yöntem bulundu: " + bestArgs, 10);
         manageGoodByeDPIService(bestArgs);
         auto path = gdpi::PathManager::getArchInstallPath() + "\\eniyiyontem.txt";
-        printMessage("TXT dosyasına kaydediliyor... Konum: " + path, 10);
+        printMessage("TXT dosyasÄ±na kaydediliyor... Konum: " + path, 10);
         std::ofstream configFile(path);
         configFile << bestArgs;
     }
     else {
-        printMessage("Uygun yöntem bulunamadı.", 12);
+        printMessage("Uygun yÃ¶ntem bulunamadÄ±.", 12);
     }
 }
 
@@ -203,25 +202,25 @@ int main() {
     setlocale(LC_ALL, "Turkish");
     if (!ensureIsAdmin())
     {
-        printMessage("Yönetici olarak başlatmalısınız!", 12);
+        printMessage("YÃ¶netici olarak baÅŸlatmalÄ±sÄ±nÄ±z!", 12);
         return 1;
     }
 
     while (true) {
         bool isInstalled = gdpi::PathManager::isInstalled();
-        printMessage("DNS değiştirmeyi unutma, yoksa bir işe yaramaz. :)", 14);
+        printMessage("DNS deÄŸiÅŸtirmeyi unutma, yoksa bir iÅŸe yaramaz. :)", 14);
         printMessage("\n--- GoodByeDPI ---", 11);
         if (isInstalled) {
             printMessage("GoodbyeDPI kurulu.", 10);
         }
         else {
-            printMessage("GoodByeDPI kurulu değil.", 12);
+            printMessage("GoodByeDPI kurulu deÄŸil.", 12);
         }
         printMessage("1. GoodByeDPI indir", 14);
         printMessage("2. GoodByeDPI sil", 14);
-        printMessage("3. En iyi yöntemi ara", 14);
-        printMessage("4. Çıkış", 14);
-        printMessage("Bir seçenek seçin: ", 7);
+        printMessage("3. En iyi yÃ¶ntemi ara", 14);
+        printMessage("4. Ã‡Ä±kÄ±ÅŸ", 14);
+        printMessage("Bir seÃ§enek seÃ§in: ", 7);
 
         int choice;
         std::cin >> choice;
@@ -241,10 +240,10 @@ int main() {
                 testArguments();
             break;
         case 4:
-            printMessage("Çıkılıyor...", 10);
+            printMessage("Ã‡Ä±kÄ±lÄ±yor...", 10);
             return 0;
         default:
-            printMessage("Geçersiz seçim, lütfen tekrar deneyin.", 12);
+            printMessage("GeÃ§ersiz seÃ§im, lÃ¼tfen tekrar deneyin.", 12);
         }
     }
 }
