@@ -59,6 +59,8 @@ void printMessage(const std::string& message, int color) {
 }
 
 void manageGoodByeDPIService(const std::string& arguments) {
+    gdpi::ServiceManager::cleanupServices();
+
     SC_HANDLE scManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if (!scManager) {
         std::cerr << "Servis yöneticisi açılamadı. Hata kodu: " << GetLastError() << "\n";
@@ -184,6 +186,7 @@ void installGoodByeDPI() {
 }
 
 void testArguments() {
+    gdpi::ServiceManager::cleanupServices();
     std::string exePath = gdpi::PathManager::getArchInstallPath() + "\\goodbyedpi.exe";
     std::string bestArgs = gdpi::Tester::findBestArguments(exePath);
     if (!bestArgs.empty()) {
